@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Números</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        h1 {
+            color: #3498db;
+            text-align: center;
+            margin-top: 2rem;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: bold;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 0.5rem;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0.5rem rgba(52, 152, 219, 0.3);
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        #numerosGuardados {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border: 1px solid #eee;
+            border-radius: 0.5rem;
+            background-color: #fff;
+            box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.1);
+            width: 90%;
+            box-sizing: border-box;
+        }
+
+        #numerosGuardados ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #numerosGuardados li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 1rem;
+            color: #444;
+        }
+
+        #numerosGuardados li:last-child {
+            border-bottom: none;
+        }
+
+        /* Media query for larger screens */
+        @media (min-width: 768px) {
+            h1 {
+                font-size: 3rem;
+            }
+
+            input[type="number"],
+            button {
+                max-width: 400px;
+            }
+
+            #numerosGuardados {
+                width: 70%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Sistema de Números</h1>
+
+    <label for="numero">Número:</label>
+    <input type="number" id="numero" min="000" max="999">
+
+    <label for="precio">Precio :</label>
+    <input type="number" id="precio" min="1" max="5000">
+
+    <button onclick="guardarNumero()">Guardar Número</button>
+    <button onclick="borrarNumeros()">Borrar Números</button>
+
+    <h2>Números Guardados:</h2>
+    <div id="numerosGuardados"></div>
+
+    <script>
+        let numeros = [];
+
+        function guardarNumero() {
+            const numeroInput = document.getElementById("numero");
+            const precioInput = document.getElementById("precio");
+            const numerosGuardadosDiv = document.getElementById("numerosGuardados");
+
+            const numero = parseInt(numeroInput.value);
+            const precio = parseInt(precioInput.value);
+
+            if (isNaN(numero) || numero < 0 || numero > 999) {
+                alert("Por favor, ingrese un número válido de 3 cifras.");
+                return;
+            }
+
+            if (isNaN(precio) || precio < 1 || precio > 5000) {
+                alert("Por favor, ingrese un precio válido no mas de 5000.");
+                return;
+            }
+
+            const ahora = new Date();
+            const horaString = ahora.toLocaleTimeString();
+            const fechaString = ahora.toLocaleDateString();
+
+            numeros.push({ numero: numero, precio: precio, hora: horaString, fecha: fechaString });
+
+            // Mostrar los números guardados
+            mostrarNumeros();
+
+            // Limpiar los campos de entrada
+            numeroInput.value = "";
+            precioInput.value = "";
+        }
+
+        function mostrarNumeros() {
+            const numerosGuardadosDiv = document.getElementById("numerosGuardados");
+            numerosGuardadosDiv.innerHTML = ""; // Limpiar el contenido anterior
+
+            if (numeros.length === 0) {
+                numerosGuardadosDiv.textContent = "No hay números guardados.";
+                return;
+            }
+
+            const ul = document.createElement("ul");
+            numeros.forEach((item, index) => {
+                const li = document.createElement("li");
+                li.innerHTML = `Número: ${item.numero}, Precio: ${item.precio}, Fecha: ${item.fecha}, Hora: ${item.hora}
+                                <button onclick="borrarNumero(${index})">Borrar</button>`;
+                ul.appendChild(li);
+            });
+
+            numerosGuardadosDiv.appendChild(ul);
+        }
+
+        function borrarNumero(index) {
+            if (confirm("¿Estás seguro de que quieres borrar este número?")) {
+                numeros.splice(index, 1);
+                mostrarNumeros();
+            }
+        }
+
+        function borrarNumeros() {
+            numeros = [];
+            mostrarNumeros(); // Actualizar la visualización
+        }
+
+        // Mostrar los números guardados al cargar la página
+        mostrarNumeros();
+    </script>
+</body>
+</html>
