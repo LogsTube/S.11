@@ -127,7 +127,8 @@
     <div id="numerosGuardados"></div>
 
     <script>
-        let numeros = [];
+        // Cargar números guardados del localStorage o inicializar array vacío
+        let numeros = JSON.parse(localStorage.getItem('numerosGuardados')) || [];
 
         function guardarNumero() {
             const numeroInput = document.getElementById("numero");
@@ -152,6 +153,9 @@
             const fechaString = ahora.toLocaleDateString();
 
             numeros.push({ numero: numero, precio: precio, hora: horaString, fecha: fechaString });
+            
+            // Guardar en localStorage
+            localStorage.setItem('numerosGuardados', JSON.stringify(numeros));
 
             // Mostrar los números guardados
             mostrarNumeros();
@@ -184,13 +188,15 @@
         function borrarNumero(index) {
             if (confirm("¿Estás seguro de que quieres borrar este número?")) {
                 numeros.splice(index, 1);
+                localStorage.setItem('numerosGuardados', JSON.stringify(numeros)); // Actualizar localStorage
                 mostrarNumeros();
             }
         }
 
         function borrarNumeros() {
             numeros = [];
-            mostrarNumeros(); // Actualizar la visualización
+            localStorage.removeItem('numerosGuardados'); // Limpiar localStorage
+            mostrarNumeros();
         }
 
         // Mostrar los números guardados al cargar la página
@@ -198,3 +204,4 @@
     </script>
 </body>
 </html>
+
