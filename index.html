@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Números</title>
+    <title>Gustacio</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -84,14 +84,33 @@
         }
 
         #numerosGuardados li {
-            padding: 0.75rem 0;
+            padding: 0.5rem;
             border-bottom: 1px solid #f0f0f0;
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: #444;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        #numerosGuardados li:last-child {
-            border-bottom: none;
+        #numerosGuardados button {
+            padding: 5px 15px;
+            font-size: 0.85rem;
+            margin: 0;
+            width: auto;
+            background-color: #e74c3c;
+        }
+
+        #numerosGuardados button:hover {
+            background-color: #c0392b;
+        }
+
+        .loteria-section h3 {
+            color: #2c3e50;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
         }
 
         /* Media query for larger screens */
@@ -109,10 +128,54 @@
                 width: 70%;
             }
         }
+
+        /* Estilos actualizados para las pestañas */
+        .tabs {
+            margin: 20px auto;
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            max-width: 400px;
+        }
+
+        .tab-button {
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            flex: 1;
+            max-width: 120px;
+            margin: 0 5px;
+        }
+
+        .tab-button.active {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        .loteria-section {
+            display: none;
+        }
+
+        .loteria-section.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
-    <h1>Sistema de Números</h1>
+    <h1>Gustacio</h1>
+
+    <div style="margin-bottom: 1rem;">
+        <label style="display: inline-block; margin-right: 1rem;">
+            <input type="radio" name="loteria" value="1" checked> Lotería 1
+        </label>
+        <label style="display: inline-block;">
+            <input type="radio" name="loteria" value="2"> Lotería 2
+        </label>
+    </div>
 
     <label for="numero">Número:</label>
     <input type="number" id="numero" min="000" max="999">
@@ -123,7 +186,12 @@
     <button onclick="guardarNumero()">Guardar Número</button>
     <button onclick="borrarNumeros()">Borrar Números</button>
 
-    <h2>Números Guardados:</h2>
+    <h2>Números :</h2>
+    <div class="tabs">
+        <button class="tab-button active" onclick="cambiarVista('todas')">Todas</button>
+        <button class="tab-button" onclick="cambiarVista('loteria1')">Lotería 1</button>
+        <button class="tab-button" onclick="cambiarVista('loteria2')">Lotería 2</button>
+    </div>
     <div id="numerosGuardados"></div>
 
     <script>
@@ -133,7 +201,7 @@
         function guardarNumero() {
             const numeroInput = document.getElementById("numero");
             const precioInput = document.getElementById("precio");
-            const numerosGuardadosDiv = document.getElementById("numerosGuardados");
+            const loteriaSeleccionada = document.querySelector('input[name="loteria"]:checked').value;
 
             const numero = parseInt(numeroInput.value);
             const precio = parseInt(precioInput.value);
@@ -152,7 +220,13 @@
             const horaString = ahora.toLocaleTimeString();
             const fechaString = ahora.toLocaleDateString();
 
-            numeros.push({ numero: numero, precio: precio, hora: horaString, fecha: fechaString });
+            numeros.push({ 
+                numero: numero, 
+                precio: precio, 
+                hora: horaString, 
+                fecha: fechaString,
+                loteria: loteriaSeleccionada 
+            });
             
             // Guardar en localStorage
             localStorage.setItem('numerosGuardados', JSON.stringify(numeros));
@@ -167,22 +241,73 @@
 
         function mostrarNumeros() {
             const numerosGuardadosDiv = document.getElementById("numerosGuardados");
-            numerosGuardadosDiv.innerHTML = ""; // Limpiar el contenido anterior
+            numerosGuardadosDiv.innerHTML = "";
 
             if (numeros.length === 0) {
                 numerosGuardadosDiv.textContent = "No hay números guardados.";
                 return;
             }
 
-            const ul = document.createElement("ul");
+            // Crear secciones separadas para cada lotería
+            const loteria1Div = document.createElement("div");
+            const loteria2Div = document.createElement("div");
+            
+            loteria1Div.className = "loteria-section";
+            loteria2Div.className = "loteria-section";
+            
+            loteria1Div.innerHTML = "<h3>Lotería 1:</h3>";
+            loteria2Div.innerHTML = "<h3>Lotería 2:</h3>";
+
+            const ul1 = document.createElement("ul");
+            const ul2 = document.createElement("ul");
+
             numeros.forEach((item, index) => {
                 const li = document.createElement("li");
-                li.innerHTML = `Número: ${item.numero}, Precio: ${item.precio}, Fecha: ${item.fecha}, Hora: ${item.hora}
-                                <button onclick="borrarNumero(${index})">Borrar</button>`;
-                ul.appendChild(li);
+                li.innerHTML = `
+                    <span>Número: ${String(item.numero).padStart(3, '0')}, Precio: $${item.precio}</span>
+                    <span>
+                        <small style="margin-right: 10px; color: #666;">${item.fecha}, ${item.hora}</small>
+                        <button onclick="borrarNumero(${index})">Borrar</button>
+                    </span>`;
+                
+                if (item.loteria === "1") {
+                    ul1.appendChild(li);
+                } else {
+                    ul2.appendChild(li);
+                }
             });
 
-            numerosGuardadosDiv.appendChild(ul);
+            loteria1Div.appendChild(ul1);
+            loteria2Div.appendChild(ul2);
+            
+            numerosGuardadosDiv.appendChild(loteria1Div);
+            numerosGuardadosDiv.appendChild(loteria2Div);
+            
+            // Mostrar vista activa
+            cambiarVista('todas');
+        }
+
+        function cambiarVista(vista) {
+            const loteriaSections = document.querySelectorAll('.loteria-section');
+            const tabButtons = document.querySelectorAll('.tab-button');
+            
+            // Desactivar todos los botones
+            tabButtons.forEach(button => button.classList.remove('active'));
+            
+            // Ocultar todas las secciones
+            loteriaSections.forEach(section => section.style.display = 'none');
+            
+            // Activar el botón seleccionado
+            document.querySelector(`.tab-button[onclick="cambiarVista('${vista}')"]`).classList.add('active');
+            
+            // Mostrar las secciones según la vista seleccionada
+            if (vista === 'todas') {
+                loteriaSections.forEach(section => section.style.display = 'block');
+            } else if (vista === 'loteria1') {
+                loteriaSections[0].style.display = 'block';
+            } else if (vista === 'loteria2') {
+                loteriaSections[1].style.display = 'block';
+            }
         }
 
         function borrarNumero(index) {
@@ -204,4 +329,3 @@
     </script>
 </body>
 </html>
-
