@@ -208,6 +208,93 @@
         .loteria-section.active {
             display: block;
         }
+
+        /* Estilos actualizados para móviles */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+                margin: 1rem 0;
+            }
+
+            input[type="number"] {
+                font-size: 16px; /* Previene zoom en iOS */
+                padding: 0.8rem;
+                margin-bottom: 1rem;
+            }
+
+            .totales-container {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+                padding: 10px;
+            }
+
+            .total-item {
+                width: 100%;
+                margin: 5px 0;
+            }
+
+            .tab-button {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+                margin: 0 2px;
+            }
+
+            #numerosGuardados {
+                width: 100%;
+                padding: 1rem;
+                margin-top: 1rem;
+            }
+
+            #numerosGuardados li {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 10px;
+            }
+
+            #numerosGuardados li span {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+            #numerosGuardados li span:last-child {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+            }
+
+            #numerosGuardados button {
+                padding: 4px 10px;
+                font-size: 0.8rem;
+            }
+
+            .tabs {
+                width: 100%;
+                max-width: none;
+                margin: 10px 0;
+            }
+        }
+
+        /* Ajustes para pantallas muy pequeñas */
+        @media (max-width: 320px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .total-item .amount {
+                font-size: 1.2rem;
+            }
+
+            .tab-button {
+                padding: 5px 8px;
+                font-size: 0.75rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -415,4 +502,3 @@
     </script>
 </body>
 </html>
-
