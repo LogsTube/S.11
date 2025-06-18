@@ -115,29 +115,32 @@
 
         .totales-container {
             display: flex;
-            justify-content: space-around;
-            margin: 10px 0;
+            flex-direction: column;
+            gap: 8px;
+            margin: 10px auto;
             padding: 10px;
-            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             width: 90%;
-            max-width: 600px;
+            max-width: 300px;
         }
 
         .total-item {
-            text-align: center;
+            text-align: left;
             padding: 8px 15px;
             background-color: white;
             border-radius: 6px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            min-width: 120px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .total-item .label {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             color: #666;
-            margin-bottom: 3px;
+            margin-right: 10px;
         }
 
         .total-item .amount {
@@ -147,15 +150,15 @@
         }
 
         .total-item.loteria1 {
-            border-bottom: 3px solid #3498db;
+            border-left: 3px solid #3498db;
         }
 
         .total-item.loteria2 {
-            border-bottom: 3px solid #2ecc71;
+            border-left: 3px solid #2ecc71;
         }
 
         .total-item.total-general {
-            border-bottom: 3px solid #e74c3c;
+            border-left: 3px solid #e74c3c;
         }
 
         /* Media query for larger screens */
