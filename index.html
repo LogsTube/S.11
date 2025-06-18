@@ -113,6 +113,51 @@
             padding-bottom: 0.5rem;
         }
 
+        .totales-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+            padding: 15px;
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 800px;
+        }
+
+        .total-item {
+            text-align: center;
+            padding: 10px 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            min-width: 150px;
+        }
+
+        .total-item .label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .total-item .amount {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .total-item.loteria1 {
+            border-bottom: 3px solid #3498db;
+        }
+
+        .total-item.loteria2 {
+            border-bottom: 3px solid #2ecc71;
+        }
+
+        .total-item.total-general {
+            border-bottom: 3px solid #e74c3c;
+        }
+
         /* Media query for larger screens */
         @media (min-width: 768px) {
             h1 {
@@ -192,6 +237,7 @@
         <button class="tab-button" onclick="cambiarVista('loteria1')">Lotería 1</button>
         <button class="tab-button" onclick="cambiarVista('loteria2')">Lotería 2</button>
     </div>
+    <div id="totales" style="text-align: center; margin: 15px 0; padding: 10px; background-color: #f8f9fa; border-radius: 5px;"></div>
     <div id="numerosGuardados"></div>
 
     <script>
@@ -213,6 +259,18 @@
 
             if (isNaN(precio) || precio < 1 || precio > 5000) {
                 alert("Por favor, ingrese un precio válido no mas de 5000.");
+                return;
+            }
+
+            // Verificar el límite de 5000 para el mismo número en la misma lotería
+            const numerosExistentes = numeros.filter(n => 
+                n.numero === numero && n.loteria === loteriaSeleccionada
+            );
+            
+            const sumaPreciosExistentes = numerosExistentes.reduce((sum, n) => sum + n.precio, 0);
+            if (sumaPreciosExistentes + precio > 5000) {
+                alert("La suma total para el número " + numero + " en la lotería " + loteriaSeleccionada + 
+                      " no puede superar $5000. Cantidad máxima alcanzada.");
                 return;
             }
 
@@ -241,7 +299,35 @@
 
         function mostrarNumeros() {
             const numerosGuardadosDiv = document.getElementById("numerosGuardados");
+            const totalesDiv = document.getElementById("totales");
             numerosGuardadosDiv.innerHTML = "";
+            
+            // Calcular totales
+            const totalLoteria1 = numeros
+                .filter(n => n.loteria === "1")
+                .reduce((sum, n) => sum + n.precio, 0);
+            
+            const totalLoteria2 = numeros
+                .filter(n => n.loteria === "2")
+                .reduce((sum, n) => sum + n.precio, 0);
+            
+            // Mostrar totales
+            totalesDiv.innerHTML = `
+                <div class="totales-container">
+                    <div class="total-item loteria1">
+                        <div class="label">Lotería 1</div>
+                        <div class="amount">$${totalLoteria1.toLocaleString()}</div>
+                    </div>
+                    <div class="total-item loteria2">
+                        <div class="label">Lotería 2</div>
+                        <div class="amount">$${totalLoteria2.toLocaleString()}</div>
+                    </div>
+                    <div class="total-item total-general">
+                        <div class="label">Total General</div>
+                        <div class="amount">$${(totalLoteria1 + totalLoteria2).toLocaleString()}</div>
+                    </div>
+                </div>
+            `;
 
             if (numeros.length === 0) {
                 numerosGuardadosDiv.textContent = "No hay números guardados.";
@@ -329,3 +415,4 @@
     </script>
 </body>
 </html>
+
