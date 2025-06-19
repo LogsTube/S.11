@@ -525,19 +525,17 @@
         }
 
         async function borrarNumeros() {
-            if (confirm("¿Estás seguro de que quieres borrar todos los números?")) {
-                if (confirm("¿REALMENTE estás seguro? Esta acción no se puede deshacer.")) {
-                    try {
-                        const snapshot = await db.collection('numeros').get();
-                        const batch = db.batch();
-                        snapshot.docs.forEach(doc => {
-                            batch.delete(doc.ref);
-                        });
-                        await batch.commit();
-                        cargarNumeros();
-                    } catch (error) {
-                        alert("Error al borrar todos los números: " + error.message);
-                    }
+            if (confirm("¿Está completamente seguro de que desea borrar TODOS los números guardados? Esta acción no se puede deshacer.")) {
+                try {
+                    const snapshot = await db.collection('numeros').get();
+                    const batch = db.batch();
+                    snapshot.docs.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    await batch.commit();
+                    cargarNumeros();
+                } catch (error) {
+                    alert("Error al borrar todos los números: " + error.message);
                 }
             }
         }
