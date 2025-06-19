@@ -299,6 +299,9 @@
             }
         }
     </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <h1>Gustacio</h1>
@@ -307,8 +310,11 @@
         <label style="display: inline-block; margin-right: 1rem;">
             <input type="radio" name="loteria" value="1" checked> Lotería 1
         </label>
-        <label style="display: inline-block;">
+        <label style="display: inline-block; margin-right: 1rem;">
             <input type="radio" name="loteria" value="2"> Lotería 2
+        </label>
+        <label style="display: inline-block;">
+            <input type="radio" name="loteria" value="ambas"> Ambas Loterías
         </label>
     </div>
 
@@ -331,10 +337,24 @@
     <div id="numerosGuardados"></div>
 
     <script>
+        // Reemplaza esto con tu configuración real de Firebase
+        const firebaseConfig = {
+            apiKey: "tu-api-key",
+            authDomain: "tu-proyecto.firebaseapp.com",
+            projectId: "tu-proyecto",
+            storageBucket: "tu-proyecto.appspot.com",
+            messagingSenderId: "tu-messaging-sender-id",
+            appId: "tu-app-id"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         // Cargar números guardados del localStorage o inicializar array vacío
         let numeros = JSON.parse(localStorage.getItem('numerosGuardados')) || [];
 
-        function guardarNumero() {
+        async function guardarNumero() {
             const numeroInput = document.getElementById("numero");
             const precioInput = document.getElementById("precio");
             const loteriaSeleccionada = document.querySelector('input[name="loteria"]:checked').value;
@@ -352,39 +372,46 @@
                 return;
             }
 
-            // Verificar el límite de 5000 para el mismo número en la misma lotería
-            const numerosExistentes = numeros.filter(n => 
-                n.numero === numero && n.loteria === loteriaSeleccionada
-            );
-            
-            const sumaPreciosExistentes = numerosExistentes.reduce((sum, n) => sum + n.precio, 0);
-            if (sumaPreciosExistentes + precio > 5000) {
-                alert("La suma total para el número " + numero + " en la lotería " + loteriaSeleccionada + 
-                      " no puede superar $5000. Cantidad máxima alcanzada.");
-                return;
-            }
-
             const ahora = new Date();
             const horaString = ahora.toLocaleTimeString();
             const fechaString = ahora.toLocaleDateString();
 
-            numeros.push({ 
-                numero: numero, 
-                precio: precio, 
-                hora: horaString, 
+            const nuevoNumero = {
+                numero: numero,
+                precio: precio,
+                hora: horaString,
                 fecha: fechaString,
-                loteria: loteriaSeleccionada 
-            });
-            
-            // Guardar en localStorage
-            localStorage.setItem('numerosGuardados', JSON.stringify(numeros));
+                loteria: loteriaSeleccionada,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
 
-            // Mostrar los números guardados
-            mostrarNumeros();
+            try {
+                if (loteriaSeleccionada === "ambas") {
+                    await db.collection('numeros').add({...nuevoNumero, loteria: "1"});
+                    await db.collection('numeros').add({...nuevoNumero, loteria: "2"});
+                } else {
+                    await db.collection('numeros').add(nuevoNumero);
+                }
+                
+                numeroInput.value = "";
+                precioInput.value = "";
+                cargarNumeros();
+            } catch (error) {
+                alert("Error al guardar: " + error.message);
+            }
+        }
 
-            // Limpiar los campos de entrada
-            numeroInput.value = "";
-            precioInput.value = "";
+        async function cargarNumeros() {
+            try {
+                const snapshot = await db.collection('numeros').orderBy('timestamp', 'desc').get();
+                numeros = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                mostrarNumeros();
+            } catch (error) {
+                alert("Error al cargar números: " + error.message);
+            }
         }
 
         function mostrarNumeros() {
@@ -443,7 +470,7 @@
                     <span>Número: ${String(item.numero).padStart(3, '0')}, Precio: $${item.precio}</span>
                     <span>
                         <small style="margin-right: 10px; color: #666;">${item.fecha}, ${item.hora}</small>
-                        <button onclick="borrarNumero(${index})">Borrar</button>
+                        <button onclick="borrarNumero(${item.id})">Borrar</button>
                     </span>`;
                 
                 if (item.loteria === "1") {
@@ -486,23 +513,38 @@
             }
         }
 
-        function borrarNumero(index) {
+        async function borrarNumero(id) {
             if (confirm("¿Estás seguro de que quieres borrar este número?")) {
-                numeros.splice(index, 1);
-                localStorage.setItem('numerosGuardados', JSON.stringify(numeros)); // Actualizar localStorage
-                mostrarNumeros();
+                try {
+                    await db.collection('numeros').doc(id).delete();
+                    cargarNumeros();
+                } catch (error) {
+                    alert("Error al borrar: " + error.message);
+                }
             }
         }
 
-        function borrarNumeros() {
-            numeros = [];
-            localStorage.removeItem('numerosGuardados'); // Limpiar localStorage
-            mostrarNumeros();
+        async function borrarNumeros() {
+            if (confirm("¿Estás seguro de que quieres borrar todos los números?")) {
+                if (confirm("¿REALMENTE estás seguro? Esta acción no se puede deshacer.")) {
+                    try {
+                        const snapshot = await db.collection('numeros').get();
+                        const batch = db.batch();
+                        snapshot.docs.forEach(doc => {
+                            batch.delete(doc.ref);
+                        });
+                        await batch.commit();
+                        cargarNumeros();
+                    } catch (error) {
+                        alert("Error al borrar todos los números: " + error.message);
+                    }
+                }
+            }
         }
 
-        // Mostrar los números guardados al cargar la página
-        mostrarNumeros();
+        // Cargar números al iniciar
+        cargarNumeros();
     </script>
 </body>
 </html>
-
+</html>
