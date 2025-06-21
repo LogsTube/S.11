@@ -298,6 +298,40 @@
                 font-size: 0.75rem;
             }
         }
+
+        /* Barra de búsqueda mejorada */
+        .busqueda-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+        }
+        #busqueda {
+            background: #f4f8fb;
+            border: 2px solid #3498db;
+            border-radius: 2rem;
+            padding: 0.8rem 2.2rem 0.8rem 1.2rem;
+            font-size: 1.05rem;
+            transition: box-shadow 0.2s, border-color 0.2s, background 0.2s, color 0.2s;
+            outline: none;
+            box-shadow: 0 2px 8px rgba(52,152,219,0.07);
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            width: 100%;
+        }
+        .busqueda-icono {
+            position: absolute;
+            right: 1.1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            pointer-events: none;
+            fill: #3498db;
+            opacity: 0.8;
+        }
     </style>
     <!-- Eliminar estas líneas de Firebase SDK -->
     <!-- <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -313,6 +347,9 @@
         <label style="display: inline-block; margin-right: 1rem;">
             <input type="radio" name="loteria" value="2"> Lotería 2
         </label>
+        <label style="display: inline-block; margin-right: 1rem;">
+            <input type="radio" name="loteria" value="chontico"> Chontico
+        </label>
         <label style="display: inline-block;">
             <input type="radio" name="loteria" value="ambas"> Ambas Loterías
         </label>
@@ -327,17 +364,29 @@
     <button onclick="guardarNumero()">Guardar Número</button>
     <button onclick="borrarNumeros()">Borrar Números</button>
 
+    <div class="busqueda-container">
+        <input type="text" id="busqueda" placeholder="Buscar número...">
+        <svg class="busqueda-icono" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="none"/><line x1="18" y1="18" x2="15.5" y2="15.5" stroke="#3498db" stroke-width="2" stroke-linecap="round"/></svg>
+    </div>
+
     <h2>Números :</h2>
     <div class="tabs">
         <button class="tab-button active" onclick="cambiarVista('todas')">Todas</button>
         <button class="tab-button" onclick="cambiarVista('loteria1')">Lotería 1</button>
         <button class="tab-button" onclick="cambiarVista('loteria2')">Lotería 2</button>
+        <button class="tab-button" onclick="cambiarVista('chontico')">Chontico</button>
     </div>
     <div id="totales" style="text-align: center; margin: 15px 0; padding: 10px; background-color: #f8f9fa; border-radius: 5px;"></div>
     <div id="numerosGuardados"></div>
 
     <script>
         let numeros = JSON.parse(localStorage.getItem('numerosGuardados')) || [];
+        let busqueda = '';
+
+        document.getElementById('busqueda').addEventListener('input', function(e) {
+            busqueda = e.target.value;
+            mostrarNumeros();
+        });
 
         function guardarNumero() {
             const numeroInput = document.getElementById("numero");
@@ -366,6 +415,10 @@
                 .filter(n => n.loteria === "2" && n.numero === numero)
                 .reduce((sum, n) => sum + n.precio, 0);
 
+            const totalActualChontico = numeros
+                .filter(n => n.loteria === "chontico" && n.numero === numero)
+                .reduce((sum, n) => sum + n.precio, 0);
+
             if (loteriaSeleccionada === "1" || loteriaSeleccionada === "ambas") {
                 if (totalActualLoteria1 + precio > 5000) {
                     alert(`No se puede agregar este valor. El número ${numero} ya tiene $${totalActualLoteria1} en Lotería 1 y superaría el límite de $5000`);
@@ -376,6 +429,13 @@
             if (loteriaSeleccionada === "2" || loteriaSeleccionada === "ambas") {
                 if (totalActualLoteria2 + precio > 5000) {
                     alert(`No se puede agregar este valor. El número ${numero} ya tiene $${totalActualLoteria2} en Lotería 2 y superaría el límite de $5000`);
+                    return;
+                }
+            }
+
+            if (loteriaSeleccionada === "chontico") {
+                if (totalActualChontico + precio > 5000) {
+                    alert(`No se puede agregar este valor. El número ${numero} ya tiene $${totalActualChontico} en Chontico y superaría el límite de $5000`);
                     return;
                 }
             }
@@ -395,7 +455,6 @@
                         fecha: fechaString,
                         loteria: "1"
                     });
-                    
                     // Guardar para lotería 2
                     numeros.unshift({
                         id: Date.now() + 1,
@@ -415,7 +474,6 @@
                         loteria: loteriaSeleccionada
                     });
                 }
-                
                 localStorage.setItem('numerosGuardados', JSON.stringify(numeros));
                 numeroInput.value = "";
                 precioInput.value = "";
@@ -436,16 +494,24 @@
             const numerosGuardadosDiv = document.getElementById("numerosGuardados");
             const totalesDiv = document.getElementById("totales");
             numerosGuardadosDiv.innerHTML = "";
-            
+
+            // Filtrar por búsqueda
+            let numerosFiltrados = numeros;
+            if (busqueda && busqueda.trim() !== '') {
+                numerosFiltrados = numeros.filter(n => String(n.numero).padStart(3, '0').includes(busqueda.trim()));
+            }
+
             // Calcular totales
-            const totalLoteria1 = numeros
+            const totalLoteria1 = numerosFiltrados
                 .filter(n => n.loteria === "1")
                 .reduce((sum, n) => sum + n.precio, 0);
-            
-            const totalLoteria2 = numeros
+            const totalLoteria2 = numerosFiltrados
                 .filter(n => n.loteria === "2")
                 .reduce((sum, n) => sum + n.precio, 0);
-            
+            const totalChontico = numerosFiltrados
+                .filter(n => n.loteria === "chontico")
+                .reduce((sum, n) => sum + n.precio, 0);
+
             // Mostrar totales
             totalesDiv.innerHTML = `
                 <div class="totales-container">
@@ -457,14 +523,18 @@
                         <div class="label">Lotería 2</div>
                         <div class="amount">$${totalLoteria2.toLocaleString()}</div>
                     </div>
+                    <div class="total-item loteria2">
+                        <div class="label">Chontico</div>
+                        <div class="amount">$${totalChontico.toLocaleString()}</div>
+                    </div>
                     <div class="total-item total-general">
                         <div class="label">Total General</div>
-                        <div class="amount">$${(totalLoteria1 + totalLoteria2).toLocaleString()}</div>
+                        <div class="amount">$${(totalLoteria1 + totalLoteria2 + totalChontico).toLocaleString()}</div>
                     </div>
                 </div>
             `;
 
-            if (numeros.length === 0) {
+            if (numerosFiltrados.length === 0) {
                 numerosGuardadosDiv.textContent = "No hay números guardados.";
                 return;
             }
@@ -472,17 +542,17 @@
             // Crear secciones separadas para cada lotería
             const loteria1Div = document.createElement("div");
             const loteria2Div = document.createElement("div");
-            
+            const chonticoDiv = document.createElement("div");
             loteria1Div.className = "loteria-section";
             loteria2Div.className = "loteria-section";
-            
+            chonticoDiv.className = "loteria-section";
             loteria1Div.innerHTML = "<h3>Lotería 1:</h3>";
             loteria2Div.innerHTML = "<h3>Lotería 2:</h3>";
-
+            chonticoDiv.innerHTML = "<h3>Chontico:</h3>";
             const ul1 = document.createElement("ul");
             const ul2 = document.createElement("ul");
-
-            numeros.forEach((item, index) => {
+            const ulChontico = document.createElement("ul");
+            numerosFiltrados.forEach((item, index) => {
                 const li = document.createElement("li");
                 li.innerHTML = `
                     <span>Número: ${String(item.numero).padStart(3, '0')}, Precio: $${item.precio}</span>
@@ -490,44 +560,42 @@
                         <small style="margin-right: 10px; color: #666;">${item.fecha}, ${item.hora}</small>
                         <button onclick="borrarNumero(${item.id})">Borrar</button>
                     </span>`;
-                
                 if (item.loteria === "1") {
                     ul1.appendChild(li);
-                } else {
+                } else if (item.loteria === "2") {
                     ul2.appendChild(li);
+                } else if (item.loteria === "chontico") {
+                    ulChontico.appendChild(li);
                 }
             });
-
             loteria1Div.appendChild(ul1);
             loteria2Div.appendChild(ul2);
-            
+            chonticoDiv.appendChild(ulChontico);
             numerosGuardadosDiv.appendChild(loteria1Div);
             numerosGuardadosDiv.appendChild(loteria2Div);
-            
+            numerosGuardadosDiv.appendChild(chonticoDiv);
             // Mostrar vista activa
-            cambiarVista('todas');
+            cambiarVista(vistaActual);
         }
 
+        let vistaActual = 'todas';
         function cambiarVista(vista) {
+            vistaActual = vista;
             const loteriaSections = document.querySelectorAll('.loteria-section');
             const tabButtons = document.querySelectorAll('.tab-button');
-            
-            // Desactivar todos los botones
             tabButtons.forEach(button => button.classList.remove('active'));
-            
-            // Ocultar todas las secciones
             loteriaSections.forEach(section => section.style.display = 'none');
-            
-            // Activar el botón seleccionado
             document.querySelector(`.tab-button[onclick="cambiarVista('${vista}')"]`).classList.add('active');
-            
-            // Mostrar las secciones según la vista seleccionada
             if (vista === 'todas') {
-                loteriaSections.forEach(section => section.style.display = 'block');
+                loteriaSections[0].style.display = 'block';
+                loteriaSections[1].style.display = 'block';
+                loteriaSections[2].style.display = 'block'; // Mostrar también Chontico
             } else if (vista === 'loteria1') {
                 loteriaSections[0].style.display = 'block';
             } else if (vista === 'loteria2') {
                 loteriaSections[1].style.display = 'block';
+            } else if (vista === 'chontico') {
+                loteriaSections[2].style.display = 'block';
             }
         }
 
@@ -549,11 +617,6 @@
 
         // Cargar números al iniciar
         cargarNumeros();
-    </script>
-</body>
-</html>
-</html>
- 
     </script>
 </body>
 </html>
