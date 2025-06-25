@@ -384,6 +384,11 @@
         let numeros = JSON.parse(localStorage.getItem('numerosGuardados')) || [];
         let busqueda = '';
 
+        // Función para formatear números con separador de miles (puntos)
+        function formatearNumero(numero) {
+            return numero.toLocaleString('es-CO');
+        }
+
         document.getElementById('busqueda').addEventListener('input', function(e) {
             busqueda = e.target.value;
             mostrarNumeros();
@@ -422,19 +427,19 @@
 
             if (["1", "todas"].includes(loteriaSeleccionada)) {
                 if (totalActualLoteria1 + precio > 10000) {
-                    alert(`No se puede agregar este valor. El número ${numero} ya tiene $${totalActualLoteria1} en Manizales y superaría el límite de $10000`);
+                    alert(`No se puede agregar este valor. El número ${numero} ya tiene $${formatearNumero(totalActualLoteria1)} en Manizales y superaría el límite de $${formatearNumero(10000)}`);
                     return;
                 }
             }
             if (["2", "todas"].includes(loteriaSeleccionada)) {
                 if (totalActualLoteria2 + precio > 10000) {
-                    alert(`No se puede agregar este valor. El número ${numero} ya tiene $${totalActualLoteria2} en Valle y superaría el límite de $10000`);
+                    alert(`No se puede agregar este valor. El número ${numero} ya tiene $${formatearNumero(totalActualLoteria2)} en Valle y superaría el límite de $${formatearNumero(10000)}`);
                     return;
                 }
             }
             if (loteriaSeleccionada === "chontico") {
                 if (totalActualChontico + precio > 10000) {
-                    alert(`No se puede agregar este valor. El número ${numero} ya tiene $${totalActualChontico} en Chontico y superaría el límite de $10000`);
+                    alert(`No se puede agregar este valor. El número ${numero} ya tiene $${formatearNumero(totalActualChontico)} en Chontico y superaría el límite de $${formatearNumero(10000)}`);
                     return;
                 }
             }
@@ -510,24 +515,24 @@
                 .filter(n => n.loteria === "chontico")
                 .reduce((sum, n) => sum + n.precio, 0);
 
-            // Mostrar totales
+            // Mostrar totales con formato de miles
             totalesDiv.innerHTML = `
                 <div class="totales-container">
                     <div class="total-item loteria1">
                         <div class="label">Manizales</div>
-                        <div class="amount">$${totalLoteria1.toLocaleString()}</div>
+                        <div class="amount">$${formatearNumero(totalLoteria1)}</div>
                     </div>
                     <div class="total-item loteria2">
                         <div class="label">Valle</div>
-                        <div class="amount">$${totalLoteria2.toLocaleString()}</div>
+                        <div class="amount">$${formatearNumero(totalLoteria2)}</div>
                     </div>
                     <div class="total-item chontico">
                         <div class="label">Chontico</div>
-                        <div class="amount">$${totalChontico.toLocaleString()}</div>
+                        <div class="amount">$${formatearNumero(totalChontico)}</div>
                     </div>
                     <div class="total-item total-general">
                         <div class="label">Total General</div>
-                        <div class="amount">$${(totalLoteria1 + totalLoteria2 + totalChontico).toLocaleString()}</div>
+                        <div class="amount">$${formatearNumero(totalLoteria1 + totalLoteria2 + totalChontico)}</div>
                     </div>
                 </div>
             `;
@@ -553,7 +558,7 @@
             numerosFiltrados.forEach((item, index) => {
                 const li = document.createElement("li");
                 li.innerHTML = `
-                    <span>Número: ${String(item.numero).padStart(3, '0')}, Precio: $${item.precio}</span>
+                    <span>Número: ${String(item.numero).padStart(3, '0')}, Precio: $${formatearNumero(item.precio)}</span>
                     <span>
                         <small style="margin-right: 10px; color: #666;">${item.fecha}, ${item.hora}</small>
                         <button onclick="borrarNumero(${item.id})">Borrar</button>
