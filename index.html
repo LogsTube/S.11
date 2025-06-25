@@ -157,8 +157,16 @@
             border-left: 3px solid #2ecc71;
         }
 
-        .total-item.total-general {
+        .total-item.loteria3 {
+            border-left: 3px solid #f39c12;
+        }
+
+        .total-item.loteria4 {
             border-left: 3px solid #e74c3c;
+        }
+
+        .total-item.total-general {
+            border-left: 3px solid #c0392b;
         }
 
         /* Media query for larger screens */
@@ -342,16 +350,22 @@
 
     <div style="margin-bottom: 1rem;">
         <label style="display: inline-block; margin-right: 1rem;">
-            <input type="radio" name="loteria" value="1" checked> Lotería 1
+            <input type="radio" name="loteria" value="1" checked> Cundinamarca
         </label>
         <label style="display: inline-block; margin-right: 1rem;">
-            <input type="radio" name="loteria" value="2"> Lotería 2
+            <input type="radio" name="loteria" value="2"> Huila
         </label>
         <label style="display: inline-block; margin-right: 1rem;">
-            <input type="radio" name="loteria" value="chontico"> Chontico
+            <input type="radio" name="loteria" value="3"> Cruz Roja
+        </label>
+        <label style="display: inline-block; margin-right: 1rem;">
+            <input type="radio" name="loteria" value="4"> Tolima
+        </label>
+        <label style="display: inline-block; margin-right: 1rem;">
+            <input type="radio" name="loteria" value="todas"> Todas
         </label>
         <label style="display: inline-block;">
-            <input type="radio" name="loteria" value="ambas"> Ambas Loterías
+            <input type="radio" name="loteria" value="chontico"> Chontico
         </label>
     </div>
 
@@ -359,7 +373,7 @@
     <input type="number" id="numero" min="000" max="999">
 
     <label for="precio">Precio :</label>
-    <input type="number" id="precio" min="1" max="5000">
+    <input type="number" id="precio" min="1" max="10000">
 
     <button onclick="guardarNumero()">Guardar Número</button>
     <button onclick="borrarNumeros()">Borrar Números</button>
@@ -372,8 +386,10 @@
     <h2>Números :</h2>
     <div class="tabs">
         <button class="tab-button active" onclick="cambiarVista('todas')">Todas</button>
-        <button class="tab-button" onclick="cambiarVista('loteria1')">Lotería 1</button>
-        <button class="tab-button" onclick="cambiarVista('loteria2')">Lotería 2</button>
+        <button class="tab-button" onclick="cambiarVista('loteria1')">Cundinamarca</button>
+        <button class="tab-button" onclick="cambiarVista('loteria2')">Huila</button>
+        <button class="tab-button" onclick="cambiarVista('loteria3')">Cruz Roja</button>
+        <button class="tab-button" onclick="cambiarVista('loteria4')">Tolima</button>
         <button class="tab-button" onclick="cambiarVista('chontico')">Chontico</button>
     </div>
     <div id="totales" style="text-align: center; margin: 15px 0; padding: 10px; background-color: #f8f9fa; border-radius: 5px;"></div>
@@ -401,12 +417,12 @@
                 return;
             }
 
-            if (isNaN(precio) || precio < 1 || precio > 5000) {
-                alert("Por favor, ingrese un precio válido no mas de 5000.");
+            if (isNaN(precio) || precio < 1 || precio > 10000) {
+                alert("Por favor, ingrese un precio válido no más de 10000.");
                 return;
             }
 
-            // Validar límite de 5000 por número en cada lotería
+            // Validar límite de 10000 por número en cada lotería
             const totalActualLoteria1 = numeros
                 .filter(n => n.loteria === "1" && n.numero === numero)
                 .reduce((sum, n) => sum + n.precio, 0);
@@ -415,27 +431,45 @@
                 .filter(n => n.loteria === "2" && n.numero === numero)
                 .reduce((sum, n) => sum + n.precio, 0);
 
+            const totalActualLoteria3 = numeros
+                .filter(n => n.loteria === "3" && n.numero === numero)
+                .reduce((sum, n) => sum + n.precio, 0);
+
+            const totalActualLoteria4 = numeros
+                .filter(n => n.loteria === "4" && n.numero === numero)
+                .reduce((sum, n) => sum + n.precio, 0);
+
             const totalActualChontico = numeros
                 .filter(n => n.loteria === "chontico" && n.numero === numero)
                 .reduce((sum, n) => sum + n.precio, 0);
 
-            if (loteriaSeleccionada === "1" || loteriaSeleccionada === "ambas") {
-                if (totalActualLoteria1 + precio > 5000) {
-                    alert(`No se puede agregar este valor. El número ${numero} ya tiene $${totalActualLoteria1} en Lotería 1 y superaría el límite de $5000`);
+            if (["1", "todas"].includes(loteriaSeleccionada)) {
+                if (totalActualLoteria1 + precio > 10000) {
+                    alert(`No se puede agregar este valor. El número ${numero} ya tiene $${totalActualLoteria1} en Lotería 1 y superaría el límite de $10000`);
                     return;
                 }
             }
-
-            if (loteriaSeleccionada === "2" || loteriaSeleccionada === "ambas") {
-                if (totalActualLoteria2 + precio > 5000) {
-                    alert(`No se puede agregar este valor. El número ${numero} ya tiene $${totalActualLoteria2} en Lotería 2 y superaría el límite de $5000`);
+            if (["2", "todas"].includes(loteriaSeleccionada)) {
+                if (totalActualLoteria2 + precio > 10000) {
+                    alert(`No se puede agregar este valor. El número ${numero} ya tiene $${totalActualLoteria2} en Lotería 2 y superaría el límite de $10000`);
                     return;
                 }
             }
-
+            if (["3", "todas"].includes(loteriaSeleccionada)) {
+                if (totalActualLoteria3 + precio > 10000) {
+                    alert(`No se puede agregar este valor. El número ${numero} ya tiene $${totalActualLoteria3} en Lotería 3 y superaría el límite de $10000`);
+                    return;
+                }
+            }
+            if (["4", "todas"].includes(loteriaSeleccionada)) {
+                if (totalActualLoteria4 + precio > 10000) {
+                    alert(`No se puede agregar este valor. El número ${numero} ya tiene $${totalActualLoteria4} en Lotería 4 y superaría el límite de $10000`);
+                    return;
+                }
+            }
             if (loteriaSeleccionada === "chontico") {
-                if (totalActualChontico + precio > 5000) {
-                    alert(`No se puede agregar este valor. El número ${numero} ya tiene $${totalActualChontico} en Chontico y superaría el límite de $5000`);
+                if (totalActualChontico + precio > 10000) {
+                    alert(`No se puede agregar este valor. El número ${numero} ya tiene $${totalActualChontico} en Chontico y superaría el límite de $10000`);
                     return;
                 }
             }
@@ -445,8 +479,8 @@
             const fechaString = ahora.toLocaleDateString();
 
             try {
-                if (loteriaSeleccionada === "ambas") {
-                    // Guardar para lotería 1
+                if (loteriaSeleccionada === "todas") {
+                    // Guardar para loterías 1, 2, 3, 4
                     numeros.unshift({
                         id: Date.now(),
                         numero: numero,
@@ -455,7 +489,6 @@
                         fecha: fechaString,
                         loteria: "1"
                     });
-                    // Guardar para lotería 2
                     numeros.unshift({
                         id: Date.now() + 1,
                         numero: numero,
@@ -463,6 +496,22 @@
                         hora: horaString,
                         fecha: fechaString,
                         loteria: "2"
+                    });
+                    numeros.unshift({
+                        id: Date.now() + 2,
+                        numero: numero,
+                        precio: precio,
+                        hora: horaString,
+                        fecha: fechaString,
+                        loteria: "3"
+                    });
+                    numeros.unshift({
+                        id: Date.now() + 3,
+                        numero: numero,
+                        precio: precio,
+                        hora: horaString,
+                        fecha: fechaString,
+                        loteria: "4"
                     });
                 } else {
                     numeros.unshift({
@@ -508,6 +557,12 @@
             const totalLoteria2 = numerosFiltrados
                 .filter(n => n.loteria === "2")
                 .reduce((sum, n) => sum + n.precio, 0);
+            const totalLoteria3 = numerosFiltrados
+                .filter(n => n.loteria === "3")
+                .reduce((sum, n) => sum + n.precio, 0);
+            const totalLoteria4 = numerosFiltrados
+                .filter(n => n.loteria === "4")
+                .reduce((sum, n) => sum + n.precio, 0);
             const totalChontico = numerosFiltrados
                 .filter(n => n.loteria === "chontico")
                 .reduce((sum, n) => sum + n.precio, 0);
@@ -516,12 +571,20 @@
             totalesDiv.innerHTML = `
                 <div class="totales-container">
                     <div class="total-item loteria1">
-                        <div class="label">Lotería 1</div>
+                        <div class="label">Cundinamarca</div>
                         <div class="amount">$${totalLoteria1.toLocaleString()}</div>
                     </div>
                     <div class="total-item loteria2">
-                        <div class="label">Lotería 2</div>
+                        <div class="label">Huila</div>
                         <div class="amount">$${totalLoteria2.toLocaleString()}</div>
+                    </div>
+                    <div class="total-item loteria3">
+                        <div class="label">Cruz Roja</div>
+                        <div class="amount">$${totalLoteria3.toLocaleString()}</div>
+                    </div>
+                    <div class="total-item loteria4">
+                        <div class="label">Tolima</div>
+                        <div class="amount">$${totalLoteria4.toLocaleString()}</div>
                     </div>
                     <div class="total-item loteria2">
                         <div class="label">Chontico</div>
@@ -529,7 +592,7 @@
                     </div>
                     <div class="total-item total-general">
                         <div class="label">Total General</div>
-                        <div class="amount">$${(totalLoteria1 + totalLoteria2 + totalChontico).toLocaleString()}</div>
+                        <div class="amount">$${(totalLoteria1 + totalLoteria2 + totalLoteria3 + totalLoteria4 + totalChontico).toLocaleString()}</div>
                     </div>
                 </div>
             `;
@@ -542,15 +605,23 @@
             // Crear secciones separadas para cada lotería
             const loteria1Div = document.createElement("div");
             const loteria2Div = document.createElement("div");
+            const loteria3Div = document.createElement("div");
+            const loteria4Div = document.createElement("div");
             const chonticoDiv = document.createElement("div");
             loteria1Div.className = "loteria-section";
             loteria2Div.className = "loteria-section";
+            loteria3Div.className = "loteria-section";
+            loteria4Div.className = "loteria-section";
             chonticoDiv.className = "loteria-section";
-            loteria1Div.innerHTML = "<h3>Lotería 1:</h3>";
-            loteria2Div.innerHTML = "<h3>Lotería 2:</h3>";
+            loteria1Div.innerHTML = "<h3>Cundinamarca:</h3>";
+            loteria2Div.innerHTML = "<h3>Huila:</h3>";
+            loteria3Div.innerHTML = "<h3>Cruz Roja:</h3>";
+            loteria4Div.innerHTML = "<h3>Tolima:</h3>";
             chonticoDiv.innerHTML = "<h3>Chontico:</h3>";
             const ul1 = document.createElement("ul");
             const ul2 = document.createElement("ul");
+            const ul3 = document.createElement("ul");
+            const ul4 = document.createElement("ul");
             const ulChontico = document.createElement("ul");
             numerosFiltrados.forEach((item, index) => {
                 const li = document.createElement("li");
@@ -564,15 +635,23 @@
                     ul1.appendChild(li);
                 } else if (item.loteria === "2") {
                     ul2.appendChild(li);
+                } else if (item.loteria === "3") {
+                    ul3.appendChild(li);
+                } else if (item.loteria === "4") {
+                    ul4.appendChild(li);
                 } else if (item.loteria === "chontico") {
                     ulChontico.appendChild(li);
                 }
             });
             loteria1Div.appendChild(ul1);
             loteria2Div.appendChild(ul2);
+            loteria3Div.appendChild(ul3);
+            loteria4Div.appendChild(ul4);
             chonticoDiv.appendChild(ulChontico);
             numerosGuardadosDiv.appendChild(loteria1Div);
             numerosGuardadosDiv.appendChild(loteria2Div);
+            numerosGuardadosDiv.appendChild(loteria3Div);
+            numerosGuardadosDiv.appendChild(loteria4Div);
             numerosGuardadosDiv.appendChild(chonticoDiv);
             // Mostrar vista activa
             cambiarVista(vistaActual);
@@ -589,13 +668,19 @@
             if (vista === 'todas') {
                 loteriaSections[0].style.display = 'block';
                 loteriaSections[1].style.display = 'block';
-                loteriaSections[2].style.display = 'block'; // Mostrar también Chontico
+                loteriaSections[2].style.display = 'block';
+                loteriaSections[3].style.display = 'block';
+                loteriaSections[4].style.display = 'block'; // Chontico
             } else if (vista === 'loteria1') {
                 loteriaSections[0].style.display = 'block';
             } else if (vista === 'loteria2') {
                 loteriaSections[1].style.display = 'block';
-            } else if (vista === 'chontico') {
+            } else if (vista === 'loteria3') {
                 loteriaSections[2].style.display = 'block';
+            } else if (vista === 'loteria4') {
+                loteriaSections[3].style.display = 'block';
+            } else if (vista === 'chontico') {
+                loteriaSections[4].style.display = 'block';
             }
         }
 
@@ -620,3 +705,4 @@
     </script>
 </body>
 </html>
+
